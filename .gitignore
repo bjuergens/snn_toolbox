@@ -9,3 +9,5 @@ __pycache__
 .idea/
 .tox/
 .pytest_cache
+
+my_test_files/
