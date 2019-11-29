@@ -128,17 +128,19 @@ def load(path, filename, **kwargs):
     #####################################
 
     import tensorflow as tf
+    import keras
 
-    class Normc_initializer(tf.keras.initializers.Initializer):
+    class Normc_initializer(keras.initializers.Initializer):
         def __init__(self, std=1.0):
             self.std = std
 
         def __call__(self, shape, dtype=None, partition_info=None):
             out = np.random.randn(*shape).astype(np.float32)
             out *= self.std / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
-            return tf.constant(out)
+            return keras.backend.constant(out)
 
-    class ObservationNormalizationLayer(tf.keras.layers.Layer):
+
+    class ObservationNormalizationLayer(keras.layers.Layer):
         def __init__(self, ob_mean, ob_std, **kwargs):
             self.ob_mean = ob_mean
             self.ob_std = ob_std
@@ -158,7 +160,7 @@ def load(path, filename, **kwargs):
         def from_config(cls, config):
             return cls(**config)
 
-    class DiscretizeActionsUniformLayer(tf.keras.layers.Layer):
+    class DiscretizeActionsUniformLayer(keras.layers.Layer):
         def __init__(self, num_ac_bins, adim, ahigh, alow, **kwargs):
             self.num_ac_bins = num_ac_bins
             self.adim = adim
@@ -209,7 +211,7 @@ def load(path, filename, **kwargs):
         def _compute_step(self, globalg):
             raise NotImplementedError
 
-    class MyAdam(tf.keras.optimizers.Optimizer):
+    class MyAdam(keras.optimizers.Optimizer):
         def __init__(self, num_params, stepsize, beta1=0.9, beta2=0.999, epsilon=1e-08):
             Optimizer.__init__(self, num_params)
             self.stepsize = stepsize
@@ -279,9 +281,9 @@ def load(path, filename, **kwargs):
         filepath_custom_objects = kwargs.get('filepath_custom_objects', None)
         if filepath_custom_objects is not None:
             filepath_custom_objects = str(filepath_custom_objects)  # python 2
-        model = tf.keras.models.load_model(str(filepath + '.h5'), custom_objects=custom_objects)
+        model = keras.models.load_model(str(filepath + '.h5'), custom_objects=custom_objects)
         optimizer = MyAdam(2, **model_structure.optimizer_args)
-        model.compile(optimizer, loss=tf.keras.losses.mean_squared_error, metrics=['accuracy', metrics.top_k_categorical_accuracy])
+        model.compile(optimizer, loss=keras.losses.mean_squared_error, metrics=['accuracy', metrics.top_k_categorical_accuracy])
 
     #####################################
     ### End of modification
